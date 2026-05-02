@@ -1,15 +1,26 @@
-FROM node:20-slim as build
+FROM python:3.10-slim
+
+# Install system dependencies for OpenCV
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+# Copy requirements from backend folder
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-RUN npm run build
+# Copy all files from the backend folder to /app
+COPY backend/ .
 
-# Use Nginx to serve the build
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Copy the model file from root to /app
+# This is necessary because the backend code expects it either in its own dir or parent
+COPY emotion_resnet18.pth .
+
+# Expose port 8000
+EXPOSE 8000
+
+# Run uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

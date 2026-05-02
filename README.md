@@ -1,3 +1,13 @@
+---
+title: EmoBeat Backend
+emoji: 🧠
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # 🎵 EmoBeat: Emotion-Driven Sonic Experience
 
 EmoBeat is an advanced, full-stack AI application that uses real-time facial expression analysis to curate the perfect musical atmosphere. By combining Deep Learning with the Spotify ecosystem, EmoBeat transforms your emotional state into a personalized sonic profile.
