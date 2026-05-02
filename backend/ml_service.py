@@ -86,12 +86,12 @@ class EmotionPredictor:
                 face_area = w * h
                 frame_area = img_w * img_h
                 area_ratio = face_area / frame_area
-                size_score = min(area_ratio / 0.15, 1.0) # Assume 15% frame area is optimal
+                size_score = min(area_ratio / 0.10, 1.0) # Assume 10% frame area is optimal
                 
                 # Blurriness metric (Laplacian variance)
                 gray_face = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
                 blur_variance = cv2.Laplacian(gray_face, cv2.CV_64F).var()
-                blur_score = min(blur_variance / 100.0, 1.0) # > 100 is usually sharp
+                blur_score = min(blur_variance / 60.0, 1.0) # > 60 is usually sharp enough
                 
                 # Center metric
                 face_center_x = x + w / 2
@@ -121,11 +121,16 @@ class EmotionPredictor:
                     class_idx = predicted.item()
                     ai_conf = confidence.item()
 
-                # 4. Final Neural Match Calculation
-                final_score = ai_conf * detector_conf * visibility_score
+                # 4. Final Neural Match Calculation (Weighted Average for stability)
+                # Prioritize AI Model confidence (70%), then visibility (20%), then detector strength (10%)
+                final_score = (ai_conf * 0.7) + (visibility_score * 0.2) + (detector_conf * 0.1)
                 
-                # Aggressively scale down if poor visibility or confidence
-                if visibility_score < 0.6 or detector_conf < 0.5:
+                # Dynamic Boost: If AI confidence is very high, boost the total score
+                if ai_conf > 0.85:
+                    final_score = max(final_score, ai_conf)
+                
+                # Only penalize if visibility is extremely poor
+                if visibility_score < 0.3 or detector_conf < 0.2:
                     final_score = final_score * 0.5
                     
                 conf_pct = round(final_score * 100, 1)
