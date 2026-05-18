@@ -95,7 +95,7 @@ This project was developed as a **Final Year Project (FYP)**. It demonstrates th
 ---
 
 ## 👨‍💻 Contributors
-*   **Shazil** - Lead Developer & Architect
+*   **Shazil Rehman** - Lead Developer & Architect
 
 ---
 *Created with ❤️ by the EmoBeat Team*
